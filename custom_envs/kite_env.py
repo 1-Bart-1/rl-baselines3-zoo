@@ -55,6 +55,7 @@ class KiteEnv(gym.Env):
     self.heading = 0
     self.rotation = 0
     self.render_name = render_name
+    self.model_path = ""
     self.steps = 0
     self.crashed = False
     self.rewards = []
@@ -117,10 +118,13 @@ class KiteEnv(gym.Env):
 
         if self.render_mode == 'arrow' and self.rendered:
           print("moving arrow file")
-          move(path.join(self.data_dir, f"{self.render_name}.arrow"), path.join(sim_data_dir, f"{self.render_name}.arrow"))
+          move(path.join(self.data_dir, f"{self.render_name}.arrow"), path.join(self.model_path, f"{self.render_name}.arrow"))
 
         if 'render_name' in options:
           self.render_name = options['render_name']
+        if 'model_path' in options:
+          self.model_path = options['model_path']
+          print(self.model_path)
 
         first_step = self.Environment.get_next_step(0.5,0.0,0.0)
 
@@ -142,7 +146,7 @@ class KiteEnv(gym.Env):
         return np.array(self._normalize_obs(), dtype=np.float32), {}
       except Exception as e:
         print(f"Unable to reset, settings: {settings['initial']}")
-        print(e)
+        # print(e)
   
   def step(self, action):
     if not all(-1 <= i <= 1 for i in action):
@@ -237,20 +241,18 @@ class KiteEnv(gym.Env):
       self.observation['tether_length'] > self.max_tether_length or
       self.observation['tether_length'] < self.min_tether_length or
       not -2*np.pi < self.rotation < 2*np.pi):
-      return 0.0, False, False
+      return -self.max_episode_length, True, False
     
     force_component = self._calculate_force_component(self.observation['force'], self.observation['azimuth'], self.observation['elevation'], self.observation['wanted_azimuth'], self.observation['min_elevation'])
     reward = np.clip(force_component / self.observation['max_force'], 0.0, 1.0) # range [-1, 1] clipped to [0, 1] because 0 is physical minimum
-    # reward = (reward + 1) / 2 # range [0, 1]
 
     # if len(self.rewards) <= 10_000:
     #   self.rewards.append(reward)
     # if len(self.rewards) == 10_000:
     #   print("First - Fifth - Tenth percentile: ", np.percentile(self.rewards, 1), np.percentile(self.rewards, 5), np.percentile(self.rewards, 10))
     #   print("99th - 95th - 90th percentile: ", np.percentile(self.rewards, 99), np.percentile(self.rewards, 95), np.percentile(self.rewards, 90))
-    # reward = max((reward - 0.5)*2, 0.0)
+
     if self.steps >= self.max_episode_length:
-      # print("steps exceeded")
       return reward, False, True
     return reward, False, False
   
