@@ -184,7 +184,7 @@ class KiteEnv(gym.Env):
     }
     
     reward, terminated, truncated = self._calculate_reward()
-    
+    # print(reward)
     # if done:
     # print(f"force: {self.observation['force']}, elevation: {self.observation['elevation']}, azimuth: {self.observation['azimuth']}, tether_length: {self.observation['tether_length']}, rotation: {self.rotation}")
       

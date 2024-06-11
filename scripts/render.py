@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../custom_envs')
+sys.path.append('.')
 
 import gymnasium as gym
 from sb3_contrib import ARS
@@ -12,12 +12,12 @@ current_date = date.today()
 formatted_date = current_date.strftime('%d-%m-%y')
 print(formatted_date)
 
-model = ARS.load(os.path.join(os.curdir(), "logs/ars/KiteEnv-v1_15/best_model"))
+model = ARS.load(os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v1_15/best_model"))
 env = gym.make("KiteEnv-v1")
 
-def render(options=None, close=False):
+def render(options={}, close=False):
     options['render_name'] = formatted_date
-    obs, _ = env.reset(options)
+    obs, _ = env.reset(options=options)
     
     done = False
     step = 0

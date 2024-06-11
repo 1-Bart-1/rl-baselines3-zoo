@@ -3,9 +3,12 @@ KiteEnv-v1:
   policy: 'LinearPolicy'
   n_delta: 8
   n_timesteps: 10_000_000
+  # normalize: "dict(norm_obs=False, norm_reward=False)"
   # n_top: 4
   # learning_rate: !!float 0.01
   # delta_std: !!float 0.025
+
+  # python train.py --algo ars --env KiteEnv-v1 --eval-episodes 10 --eval-freq 100000 -n 20000000 -tb tb-log
 
 # Tuned
 CartPole-v1:
