@@ -1,3 +1,12 @@
+KiteEnv-v1:
+  n_envs: 14
+  policy: 'LinearPolicy'
+  n_delta: 8
+  n_timesteps: 10_000_000
+  # n_top: 4
+  # learning_rate: !!float 0.01
+  # delta_std: !!float 0.025
+
 # Tuned
 CartPole-v1:
   n_envs: 1

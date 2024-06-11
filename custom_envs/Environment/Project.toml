@@ -1,0 +1,7 @@
+name = "Environment"
+uuid = "3d853447-efe6-4e3d-ad6b-5a0b9456fe05"
+authors = ["1-Bart-1 <bart@vandelint.net>"]
+version = "0.1.0"
+
+[deps]
+KiteModels = "b94af626-7959-4878-9336-2adc27959007"
