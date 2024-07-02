@@ -13,7 +13,7 @@ formatted_date = current_date.strftime('%d-%m-%y')
 print(formatted_date)
 
 model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v1_25")
-model = ARS.load(os.path.join(model_path, "best_model"))
+model = ARS.load(os.path.join(model_path, "KiteEnv-v1.zip"))
 env = gym.make("KiteEnv-v1")
 
 def render(options={}, close=False):
@@ -24,10 +24,11 @@ def render(options={}, close=False):
     done = False
     step = 0
     try:
-        while step < 2048:
+        while step < 1024:
             action, _ = model.predict(obs)
-            obs, _, term, trunc, _ = env.step(action)
+            obs, reward, term, trunc, _ = env.step(action)
             done = term or trunc
+            print(f"Reward: {reward}, Term: {term}, Trunc: {trunc}")
             env.render()
             # print(obs)
             step += 1

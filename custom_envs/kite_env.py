@@ -53,6 +53,7 @@ class KiteEnv(gym.Env):
     self.verbose = 2
     self.max_sim_force = 10000
     self.heading = 0
+    self.course = 0
     self.rotation = 0
     self.render_name = render_name
     self.model_path = ""
@@ -131,7 +132,7 @@ class KiteEnv(gym.Env):
         self.rotation = self.heading
         self.rotation += self._calculate_rotation_change(reset_value[8], first_step[8])
         self.heading = first_step[8]
-
+        self.course = first_step[9]
         self.observation = {
           'orientation_old': reset_value[:4],
           'orientation': first_step[:4],
@@ -161,7 +162,7 @@ class KiteEnv(gym.Env):
     self.steps += 1
     reward = 0.0
     
-    next_step = np.zeros(9)
+    next_step = np.zeros(10)
     self.crashed = False
     try:
       next_step = self.Environment.get_next_step(float(self.action['power']), float(self.action['steering']), float(self.action['v_reel_out']))
@@ -174,6 +175,7 @@ class KiteEnv(gym.Env):
     
     self.rotation += self._calculate_rotation_change(self.heading, next_step[8])
     self.heading = next_step[8]
+    self.course = next_step[9]
     
     self.observation = {
       'orientation_old': self.observation['orientation'],
@@ -240,8 +242,12 @@ class KiteEnv(gym.Env):
       self.observation['elevation'] < self.observation['min_elevation'] or
       self.observation['tether_length'] > self.max_tether_length or
       self.observation['tether_length'] < self.min_tether_length or
+      abs(self.heading - self.course) > np.pi/4 or
       not -2*np.pi < self.rotation < 2*np.pi):
-      return -self.max_episode_length, True, False
+      return 0.0, False, False
+    
+    # if abs(self.heading - self.course) > np.pi/4:
+    #   return 0.0, False, False
     
     force_component = self._calculate_force_component(self.observation['force'], self.observation['azimuth'], self.observation['elevation'], self.observation['wanted_azimuth'], self.observation['min_elevation'])
     reward = np.clip(force_component / self.observation['max_force'], 0.0, 1.0) # range [-1, 1] clipped to [0, 1] because 0 is physical minimum

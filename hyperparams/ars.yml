@@ -1,8 +1,11 @@
 KiteEnv-v1:
   n_envs: 15
   policy: 'LinearPolicy'
-  n_delta: 8
-  n_timesteps: 10_000_000
+  learning_rate: 0.02
+  delta_std: 0.0075
+  n_delta: 256
+  n_top: 256
+  n_timesteps: 100_000_000
   alive_bonus_offset: 0
   # normalize: "dict(norm_obs=False, norm_reward=False)"
   # n_top: 4

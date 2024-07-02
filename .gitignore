@@ -1,3 +1,5 @@
+tb-log
+Manifest.toml
 *.so
 __pycache__/
 logs
