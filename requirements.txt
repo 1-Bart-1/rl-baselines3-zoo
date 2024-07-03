@@ -10,3 +10,7 @@ plotly
 # panda-gym~=3.0.1
 wandb
 moviepy
+juliacall
+numpy
+gymnasium
+uuid

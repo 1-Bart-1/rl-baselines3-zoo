@@ -7,3 +7,7 @@ usage in code:
 using KiteModels
 
 Pkg.update("KiteModels") to update commits done to KiteModels
+
+
+command to run training:
+python train.py --algo ars --env KiteEnv-v2 --eval-episodes 10 --eval-freq 200000 -n 200000000 -tb tb-log

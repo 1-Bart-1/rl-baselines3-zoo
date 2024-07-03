@@ -4,12 +4,10 @@ julia -t 1 -e '
 import Pkg;
 Pkg.add("PythonCall");
 Pkg.add("PackageCompiler");
-Pkg.activate("Environment");
-Pkg.update();
-Pkg.instantiate();
+Pkg.activate(".");
 using Environment;
 using PackageCompiler;
-create_sysimage(["Environment"], sysimage_path=".julia_sysimage.so", precompile_execution_file=".jl_precompile.jl");
+create_sysimage(["Environment"], sysimage_path=".julia_sysimage.so");
 '
 
 # Check if .julia_sysimage.so was created successfully
@@ -25,20 +23,29 @@ os.environ['PYTHON_JULIACALL_SYSIMAGE'] = os.path.join(os.getcwd(), '.julia_sysi
 from juliacall import Main as jl
 from time import time
 jl.seval('using Pkg')
-jl.Pkg.activate('Environment')
+jl.Pkg.activate('.')
 jl.seval('using Environment')
+jl.seval('')
 
 start = time()
 jl.Environment.reset()
 print('reset time', time() - start)
 
 start = time()
-jl.Environment.get_next_step(0, 0, 0)
+jl.Environment.step([0, 0, 0])
 print('step1 time', time() - start)
 
 start = time()
-jl.Environment.get_next_step(0, 0, 0)
+jl.Environment.render()
+print('render1 time', time() - start)
+
+start = time()
+jl.Environment.step([0, 0, 0])
 print('step2 time', time() - start)
+
+start = time()
+jl.Environment.render()
+print('render2 time', time() - start)
 
 start = time()
 jl.Environment.reset()

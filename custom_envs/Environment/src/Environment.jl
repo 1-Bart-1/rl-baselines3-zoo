@@ -42,14 +42,10 @@ function reset(name="sim_log")
     if logger !== nothing
         name = String(name)
         path = joinpath(get_data_path(), name) * ".bin"
-        for pos in logger
-            println(pos[end])
-        end
         serialize(path, logger)
     end
     
     update_settings()
-    println(get_data_path())
     kcu = KCU(se());
     s = Model(kcu);
     @time logger = Vector{typeof(s.pos)}()
@@ -74,9 +70,9 @@ function calc_state(s::KPS4_3L)
     state_dd .= (state_d .- last_state_d) / 0.2
     last_state_d .= state_d
     last_state .= state
-    println("state\n", state)
-    println("state_d\n", state_d)
-    println("state_dd\n", state_dd)
+    # println("state\n", state)
+    # println("state_d\n", state_d)
+    # println("state_dd\n", state_dd)
     return vcat(state, state_d, state_dd)
 end
 
