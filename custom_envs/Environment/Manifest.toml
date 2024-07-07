@@ -615,7 +615,7 @@ version = "0.6.0"
 
 [[deps.KiteModels]]
 deps = ["AtmosphericModels", "BenchmarkTools", "Dierckx", "DiffEqBase", "DocStringExtensions", "KitePodModels", "KiteUtils", "LinearAlgebra", "NLsolve", "OrdinaryDiffEq", "Parameters", "PrecompileTools", "Reexport", "Rotations", "Serialization", "StaticArrays", "Sundials", "TestEnv", "WinchModels"]
-git-tree-sha1 = "ac8f3c4f7dda3536e3315070437b053247462e7f"
+git-tree-sha1 = "d3b985b1086e6c3cd1413c5234343176120220f6"
 repo-rev = "feat/KPS4_3L"
 repo-url = "https://github.com/1-Bart-1/KiteModels.jl.git"
 uuid = "b94af626-7959-4878-9336-2adc27959007"

@@ -11,6 +11,7 @@ plotly
 wandb
 moviepy
 juliacall
-numpy
+numpy<2.0
 gymnasium
 uuid
+pyyaml
