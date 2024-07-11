@@ -122,7 +122,7 @@ class KiteEnv(gym.Env):
     reward = observation[0]
     truncated = self.steps > self.max_episode_length
     if terminated:
-      reward = -self.max_episode_length
+      reward = -100.0
     
     return np.array(observation, dtype=np.float32), reward, terminated, truncated, {}
   

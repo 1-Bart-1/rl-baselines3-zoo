@@ -233,7 +233,7 @@ class ExperimentManager:
         # Special case for ARS
         if self.algo == "ars" and self.n_envs > 1:
             kwargs["async_eval"] = AsyncEval(
-                [lambda: self.create_envs(n_envs=1, no_log=True) for _ in range(self.n_envs)], model.policy, "spawn" # ?
+                [lambda: self.create_envs(n_envs=1, no_log=True) for _ in range(self.n_envs)], model.policy, "spawn"
             )
 
         try:
@@ -807,7 +807,7 @@ class ExperimentManager:
             pprint(sampled_hyperparams)
             raise optuna.exceptions.TrialPruned() from e
         is_pruned = eval_callback.is_pruned
-        reward = eval_callback.last_mean_reward
+        reward = eval_callback.average_mean_reward # use average mean reward instead of the last mean reward
 
         del model.env, eval_env
         del model
@@ -868,9 +868,10 @@ class ExperimentManager:
                                 states=counted_states,
                             )
                         ],
+                        catch=[ConnectionResetError],
                     )
             else:
-                study.optimize(self.objective, n_jobs=self.n_jobs, n_trials=self.n_trials)
+                study.optimize(self.objective, n_jobs=self.n_jobs, n_trials=self.n_trials, catch=[ConnectionResetError])
         except KeyboardInterrupt:
             pass
 

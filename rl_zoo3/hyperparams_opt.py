@@ -508,21 +508,22 @@ def sample_ars_params(trial: optuna.Trial, n_actions: int, n_envs: int, addition
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 1, log=True)
     delta_std = trial.suggest_categorical("delta_std", [0.01, 0.02, 0.025, 0.03, 0.05, 0.1, 0.2, 0.3])
     top_frac_size = trial.suggest_categorical("top_frac_size", [0.1, 0.2, 0.3, 0.5, 0.8, 0.9, 1.0])
-    zero_policy = trial.suggest_categorical("zero_policy", [True, False])
     n_top = max(int(top_frac_size * n_delta), 1)
+    alive_bonus_offset = trial.suggest_categorical("alive_bonus_offset", [-1, -0.1, 0])
 
-    # net_arch = trial.suggest_categorical("net_arch", ["linear", "tiny", "small"])
+    net_arch = trial.suggest_categorical("net_arch", ["linear", "medium", "big"])
+    zero_policy = False
+    if net_arch == "linear":
+        zero_policy = True
 
     # Note: remove bias to be as the original linear policy
     # and do not squash output
     # Comment out when doing hyperparams search with linear policy only
-    # net_arch = {
-    #     "linear": [],
-    #     "tiny": [16],
-    #     "small": [32],
-    # }[net_arch]
-
-    # TODO: optimize the alive_bonus_offset too
+    net_arch = {
+        "linear": [],
+        "medium": [64, 64],
+        "big": [128, 128],
+    }[net_arch]
 
     return {
         # "n_eval_episodes": n_eval_episodes,
@@ -531,7 +532,8 @@ def sample_ars_params(trial: optuna.Trial, n_actions: int, n_envs: int, addition
         "delta_std": delta_std,
         "n_top": n_top,
         "zero_policy": zero_policy,
-        # "policy_kwargs": dict(net_arch=net_arch),
+        "alive_bonus_offset": alive_bonus_offset,
+        "policy_kwargs": dict(net_arch=net_arch),
     }
 
 

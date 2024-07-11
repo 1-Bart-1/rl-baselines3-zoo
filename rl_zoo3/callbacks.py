@@ -5,6 +5,7 @@ from copy import deepcopy
 from functools import wraps
 from threading import Thread
 from typing import Optional, Type, Union
+from numpy import inf
 
 import optuna
 from sb3_contrib import TQC
@@ -42,14 +43,18 @@ class TrialEvalCallback(EvalCallback):
         self.trial = trial
         self.eval_idx = 0
         self.is_pruned = False
+        self.average_mean_reward = 0.0
 
     def _on_step(self) -> bool:
         if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
             super()._on_step()
+            # if self.eval_idx == 0:
+            #     self.average_mean_reward = self.last_mean_reward
+            self.average_mean_reward = (self.average_mean_reward*self.eval_idx + self.last_mean_reward) / (self.eval_idx + 1)
+            print("mean mean reward", self.average_mean_reward)
             self.eval_idx += 1
-            # report best or report current ?
-            # report num_timesteps or elasped time ?
-            self.trial.report(self.last_mean_reward, self.eval_idx)
+            self.trial.report(self.average_mean_reward, self.eval_idx)
+            # self.trial.report(self.last_mean_reward, self.eval_idx)
             # Prune trial if need
             if self.trial.should_prune():
                 self.is_pruned = True

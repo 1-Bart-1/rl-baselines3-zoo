@@ -15,14 +15,16 @@
 #   # python train.py --algo ars --env KiteEnv-v1 --eval-episodes 10 --eval-freq 100000 -n 20000000 -tb tb-log
 KiteEnv-v3:
   n_envs: 15
-  policy: 'LinearPolicy'
-  n_timesteps: !!float 7.5e7
-  learning_rate: !!float 0.03
-  delta_std: !!float 0.025
-  n_delta: 40
-  n_top: 30
   alive_bonus_offset: 0
+  policy: 'MlpPolicy'
+  n_timesteps: !!float 7.5e7
+  learning_rate: !!float 0.046125961321447966
+  delta_std: !!float 0.05
+  n_delta: 6
+  n_top: 1
   normalize: "dict(norm_obs=True, norm_reward=False)"
+  policy_kwargs: "dict(net_arch=[64, 64])"
+  zero_policy: False
 
 # Tuned
 CartPole-v1:

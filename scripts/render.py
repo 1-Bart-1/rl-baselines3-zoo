@@ -12,9 +12,9 @@ current_date = date.today()
 formatted_date = current_date.strftime('%d-%m-%y')
 print(formatted_date)
 
-model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v1_25")
-model = ARS.load(os.path.join(model_path, "KiteEnv-v1.zip"))
-env = gym.make("KiteEnv-v1")
+model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_15")
+model = ARS.load(os.path.join(model_path, "best_model.zip"))
+env = gym.make("KiteEnv-v3")
 
 def render(options={}, close=False):
     options['render_name'] = formatted_date
