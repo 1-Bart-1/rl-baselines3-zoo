@@ -3,9 +3,9 @@ using KiteModels, Serialization, ControlPlots
 if ! @isdefined kcu;  const kcu = KCU(se());   end
 if ! @isdefined s; const s = KPS4_3L(kcu); end
 
-set_data_path(joinpath(dirname(@__FILE__), "../logs/ars/KiteEnv-v3_15"))
+set_data_path(joinpath(dirname(@__FILE__), "../logs/ars/KiteEnv-v3_48"))
 # set_data_path(joinpath(dirname(@__FILE__), "../custom_envs/Environment/data"))
-name = "08-07-24"
+name = "14-07-24"
 path = joinpath(get_data_path(), name) * ".bin"
 logger = deserialize(path)
 dt = 0.05
@@ -13,7 +13,7 @@ start_time = time()
 
 for i in eachindex(logger)
     global start_time
-    plot2d(logger[i], i*dt ; zoom=false, front=true)
+    plot2d(logger[i], i*dt ; zoom=false, front=false)
     while time() - start_time < dt
         sleep(1e-4)
     end

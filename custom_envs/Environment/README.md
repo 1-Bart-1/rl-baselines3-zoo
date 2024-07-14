@@ -14,10 +14,10 @@ python train.py --algo ars --env KiteEnv-v3 --eval-episodes 10 --eval-freq 20000
 
 
 hyperparam tuning:
-python train.py --algo ars --env KiteEnv-v3 -optimize --study-name kite_env-v3-2 --storage sqlite:///kite_env-v3.db --n-trials 1000 --n-jobs 1 -n 50000 --eval-episodes 1 --n-evaluations 10 --verbose 2
+python train.py --algo ars --env KiteEnv-v3 -optimize --study-name kite_env-v3-3 --storage sqlite:///kite_env-v3.db --n-trials 1000 --n-jobs 1 -n 500000 --eval-episodes 1 --n-evaluations 20 --verbose 2
 
 hyperparam viewing:
- python scripts/parse_study.py --study-name kite_env-v3-2 --print-n-best-trials 10 --storage sqlite:///kite_env-v3.db
+python scripts/parse_study.py --study-name kite_env-v3-3 --print-n-best-trials 10 --storage sqlite:///kite_env-v3.db
 
 
 ConnectionResetError

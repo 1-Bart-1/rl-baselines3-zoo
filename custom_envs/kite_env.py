@@ -72,8 +72,9 @@ class KiteEnv(gym.Env):
         settings = yaml.safe_load(file)
         
       # settings['initial']['elevation'] = float(random.choice(np.linspace(70, 80, 100, endpoint=False)))
-      settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 150, 10, endpoint=False)))
+      # settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 150, 10, endpoint=False)))
 
+      # random episode length between 200 and 500
       initial_tether_length = settings['initial']['l_tether']
 
       # wanted_azimuth = options.get('wanted_azimuth',random.uniform(-np.pi, np.pi))
@@ -129,7 +130,7 @@ class KiteEnv(gym.Env):
   def render(self):
     if self.render_mode == 'bin':
       self.rendered = True
-      print("rendering...")
+      # print("rendering...")
       self.Environment.render()
   
   def close(self):

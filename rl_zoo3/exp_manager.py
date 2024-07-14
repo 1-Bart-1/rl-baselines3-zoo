@@ -807,7 +807,7 @@ class ExperimentManager:
             pprint(sampled_hyperparams)
             raise optuna.exceptions.TrialPruned() from e
         is_pruned = eval_callback.is_pruned
-        reward = eval_callback.average_mean_reward # use average mean reward instead of the last mean reward
+        reward = eval_callback.reward_slope # use reward slope with 80% certainty instead of the last mean reward
 
         del model.env, eval_env
         del model

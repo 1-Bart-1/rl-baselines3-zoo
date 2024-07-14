@@ -5,7 +5,8 @@ from copy import deepcopy
 from functools import wraps
 from threading import Thread
 from typing import Optional, Type, Union
-from numpy import inf
+from statsmodels.api import OLS, add_constant
+import statsmodels.api as sm
 
 import optuna
 from sb3_contrib import TQC
@@ -43,17 +44,26 @@ class TrialEvalCallback(EvalCallback):
         self.trial = trial
         self.eval_idx = 0
         self.is_pruned = False
-        self.average_mean_reward = 0.0
+        self.mean_reward_list = []
+        self.reward_slope = 0.0
+        # self.average_mean_reward = 0.0
 
     def _on_step(self) -> bool:
         if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
             super()._on_step()
             # if self.eval_idx == 0:
             #     self.average_mean_reward = self.last_mean_reward
-            self.average_mean_reward = (self.average_mean_reward*self.eval_idx + self.last_mean_reward) / (self.eval_idx + 1)
-            print("mean mean reward", self.average_mean_reward)
+            
+            # self.average_mean_reward = (self.average_mean_reward*self.eval_idx + self.last_mean_reward) / (self.eval_idx + 1)
             self.eval_idx += 1
-            self.trial.report(self.average_mean_reward, self.eval_idx)
+            self.mean_reward_list.append(self.last_mean_reward)
+            conf_interval = OLS(
+                self.mean_reward_list, 
+                add_constant([i for i in range(self.eval_idx)])
+                ).fit().conf_int(0.2)
+            self.reward_slope = conf_interval[1][0]
+            print("slope range", conf_interval[1])
+            self.trial.report(self.reward_slope, self.eval_idx)
             # self.trial.report(self.last_mean_reward, self.eval_idx)
             # Prune trial if need
             if self.trial.should_prune():

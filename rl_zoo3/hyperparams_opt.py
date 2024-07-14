@@ -503,13 +503,14 @@ def sample_ars_params(trial: optuna.Trial, n_actions: int, n_envs: int, addition
     :return:
     """
     # n_eval_episodes = trial.suggest_categorical("n_eval_episodes", [1, 2])
-    n_delta = trial.suggest_categorical("n_delta", [4, 8, 6, 32, 64])
+    n_delta = trial.suggest_categorical("n_delta", [32, 64, 128])
     # learning_rate = trial.suggest_categorical("learning_rate", [0.01, 0.02, 0.025, 0.03])
-    learning_rate = trial.suggest_float("learning_rate", 1e-5, 1, log=True)
-    delta_std = trial.suggest_categorical("delta_std", [0.01, 0.02, 0.025, 0.03, 0.05, 0.1, 0.2, 0.3])
-    top_frac_size = trial.suggest_categorical("top_frac_size", [0.1, 0.2, 0.3, 0.5, 0.8, 0.9, 1.0])
+    learning_rate = trial.suggest_categorical("learning_rate", [0.01, 0.02, 0.03])
+    delta_std = trial.suggest_categorical("delta_std", [0.02, 0.025, 0.03])
+    top_frac_size = trial.suggest_categorical("top_frac_size", [0.5, 0.8, 1.0])
     n_top = max(int(top_frac_size * n_delta), 1)
-    alive_bonus_offset = trial.suggest_categorical("alive_bonus_offset", [-1, -0.1, 0])
+    # alive_bonus_offset = trial.suggest_categorical("alive_bonus_offset", [-1, -0.1, 0])
+    alive_bonus_offset = 0.0
 
     net_arch = trial.suggest_categorical("net_arch", ["linear", "medium", "big"])
     zero_policy = False
