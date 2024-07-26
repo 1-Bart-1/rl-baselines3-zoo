@@ -12,7 +12,7 @@ max_render_length = 10000;
 i = 1;
 logger = nothing;
 integrator = nothing;
-# integrator_history = load_history()
+integrator_history = load_history()
 const StateVec = MVector{11, Float32}
 state::StateVec = zeros(StateVec)
 state_d::StateVec = zeros(StateVec)
@@ -44,7 +44,7 @@ function step(reel_out_speeds; prn=false)
 end
 
 function reset(name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, force=5000.0)
-    global kcu, s, integrator, i, sys_state, logger, integrator_history, wanted_elevation, wanted_azimuth, wanted_tether_length, rotation, max_force
+    global kcu, s, integrator, integrator_history, i, sys_state, logger, integrator_history, wanted_elevation, wanted_azimuth, wanted_tether_length, rotation, max_force
 
     wanted_elevation = Float32(elevation)
     wanted_azimuth = Float32(azimuth)
@@ -63,7 +63,7 @@ function reset(name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, f
     kcu = KCU(se());
     s = Model(kcu);
     logger = Vector{typeof(s.pos)}()
-    integrator = KiteModels.init_sim!(s, stiffness_factor=0.04, prn=false, integrator_history=nothing)
+    integrator = KiteModels.init_sim!(s, stiffness_factor=0.04, prn=false, integrator_history=integrator_history)
     i = 1
     return _calc_state(s)
 end
@@ -137,7 +137,7 @@ end
 
 
 function close()
-    # save_history(integrator_history)
+    save_history(integrator_history)
 end
 
 end

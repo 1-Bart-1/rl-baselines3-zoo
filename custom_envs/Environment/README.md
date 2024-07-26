@@ -21,3 +21,9 @@ python scripts/parse_study.py --study-name kite_env-v3-3 --print-n-best-trials 1
 
 
 ConnectionResetError
+
+
+kite_env-v3-48 / ars_18 is a beast
+ars_23 / v3_55 is good, need to check
+
+reward for azimuth change

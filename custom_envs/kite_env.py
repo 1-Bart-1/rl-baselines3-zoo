@@ -44,7 +44,7 @@ class KiteEnv(gym.Env):
                 path.join(self.data_dir, "3l_settings.yaml"))
     self.Environment.set_data_path(self.data_dir)
     
-    self.max_episode_length = 1024
+    self.max_episode_length = 100 # 100/3 = 33 seconds per episode
     self.rendered = False
     self.step_count = 0
     self.verbose = 2
@@ -120,10 +120,12 @@ class KiteEnv(gym.Env):
         print(e)
       terminated = True
 
-    reward = observation[0]
+    reward = observation[0]*10
     truncated = self.steps > self.max_episode_length
     if terminated:
       reward = -100.0
+
+      # REWARD MULTIPLIER
     
     return np.array(observation, dtype=np.float32), reward, terminated, truncated, {}
   

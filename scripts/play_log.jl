@@ -1,11 +1,15 @@
-using KiteModels, Serialization, ControlPlots
+using KiteModels, Serialization, ControlPlots, Dates
 
 if ! @isdefined kcu;  const kcu = KCU(se());   end
 if ! @isdefined s; const s = KPS4_3L(kcu); end
 
-set_data_path(joinpath(dirname(@__FILE__), "../logs/ars/KiteEnv-v3_48"))
+set_data_path(joinpath(dirname(@__FILE__), "../logs/ars/KiteEnv-v3_59"))
 # set_data_path(joinpath(dirname(@__FILE__), "../custom_envs/Environment/data"))
-name = "14-07-24"
+
+current_date = Dates.today()
+name = Dates.format(current_date, "dd-mm-yy")
+
+println(name)
 path = joinpath(get_data_path(), name) * ".bin"
 logger = deserialize(path)
 dt = 0.05
@@ -13,7 +17,7 @@ start_time = time()
 
 for i in eachindex(logger)
     global start_time
-    plot2d(logger[i], i*dt ; zoom=false, front=false)
+    plot2d(logger[i], i*dt ; zoom=false, front=true)
     while time() - start_time < dt
         sleep(1e-4)
     end

@@ -14,7 +14,7 @@ current_date = date.today()
 formatted_date = current_date.strftime('%d-%m-%y')
 print(formatted_date)
 
-model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_48")
+model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_59")
 model = ARS.load(os.path.join(model_path, "best_model.zip"))
 
 env = make_vec_env("KiteEnv-v3", env_kwargs={"render_mode": "bin"})
@@ -35,7 +35,7 @@ def render(options={}, close=False):
             reward = reward[0]
             term = term[0]
             trunc = trunc[0]['TimeLimit.truncated']
-            done = term or trunc
+            done = term
             print(f"Reward: {reward}, Term: {term}, Trunc: {trunc}")
             env.render()
             # print(obs)

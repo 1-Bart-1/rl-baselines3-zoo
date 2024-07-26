@@ -4,7 +4,7 @@ KiteEnv-v3:
   n_envs: 15
   policy: 'MlpPolicy'
   n_timesteps: !!float 7.5e7
-  learning_rate: !!float 0.03
+  learning_rate: !!float 0.02
   delta_std: !!float 0.025
   n_delta: 40
   n_top: 30
