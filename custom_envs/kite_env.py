@@ -44,7 +44,7 @@ class KiteEnv(gym.Env):
                 path.join(self.data_dir, "3l_settings.yaml"))
     self.Environment.set_data_path(self.data_dir)
     
-    self.max_episode_length = 100 # 100/3 = 33 seconds per episode
+    self.max_episode_length = 200
     self.rendered = False
     self.step_count = 0
     self.verbose = 2
@@ -72,9 +72,9 @@ class KiteEnv(gym.Env):
         settings = yaml.safe_load(file)
         
       # settings['initial']['elevation'] = float(random.choice(np.linspace(70, 80, 100, endpoint=False)))
-      # settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 150, 10, endpoint=False)))
+      settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 60, 100, endpoint=False)))
+      settings['system']['sample_freq'] = 3
 
-      # random episode length between 200 and 500
       initial_tether_length = settings['initial']['l_tether']
 
       # wanted_azimuth = options.get('wanted_azimuth',random.uniform(-np.pi, np.pi))
@@ -92,7 +92,7 @@ class KiteEnv(gym.Env):
 
         if self.render_mode == 'bin' and self.rendered:
           print("moving bin file")
-          move(path.join(self.data_dir, f"{self.render_name}.bin"), path.join(self.model_path, f"{self.render_name}.bin"))
+          move(path.join(self.data_dir, f"{self.render_name}.arrow"), path.join(self.model_path, f"{self.render_name}.arrow"))
 
         if 'render_name' in options:
           self.render_name = options['render_name']

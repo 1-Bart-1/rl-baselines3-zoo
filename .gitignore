@@ -1,3 +1,8 @@
+*.bin
+*.arrow
+*.obj
+nohup.out
+
 tb-log
 Manifest.toml
 *.so

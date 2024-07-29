@@ -10,7 +10,7 @@ Pkg.update("KiteModels") to update commits done to KiteModels
 
 
 command to run training:
-python train.py --algo ars --env KiteEnv-v3 --eval-episodes 10 --eval-freq 200000 -n 200000000 -tb tb-log
+python train.py --algo ars --env KiteEnv-v3 --eval-episodes 20 --eval-freq 500000 -n 200000000 -tb tb-log
 
 
 hyperparam tuning:
@@ -23,7 +23,9 @@ python scripts/parse_study.py --study-name kite_env-v3-3 --print-n-best-trials 1
 ConnectionResetError
 
 
-kite_env-v3-48 / ars_18 is a beast
-ars_23 / v3_55 is good, need to check
+ars_23 / v3_55 WORKS with 3Hz sampling
+v3_59 WORKS with 3Hz sampling
+
+logs/ars/KiteEnv-v3_66 && tb-log/KiteEnv-v3/ARS_31: 
 
 reward for azimuth change

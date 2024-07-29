@@ -27,16 +27,17 @@ def render(options={}, close=False):
     obs = env.reset()
     
     done = False
+    term = False
     step = 0
     try:
-        while not done:
+        while step < 1000 and not term:
             action, _ = model.predict(obs)
             obs, reward, term, trunc = env.step(action)
             reward = reward[0]
             term = term[0]
             trunc = trunc[0]['TimeLimit.truncated']
             done = term
-            print(f"Reward: {reward}, Term: {term}, Trunc: {trunc}")
+            print(f"Step: {step}, Reward: {reward}, Term: {term}, Trunc: {trunc}")
             env.render()
             # print(obs)
             step += 1

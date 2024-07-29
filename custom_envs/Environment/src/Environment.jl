@@ -12,7 +12,7 @@ max_render_length = 10000;
 i = 1;
 logger = nothing;
 integrator = nothing;
-integrator_history = load_history()
+steady_state_history = load_history()
 const StateVec = MVector{11, Float32}
 state::StateVec = zeros(StateVec)
 state_d::StateVec = zeros(StateVec)
@@ -31,20 +31,21 @@ function step(reel_out_speeds; prn=false)
 
     old_heading = calc_heading(s)
     if prn
-        KiteModels.next_step!(s, integrator, v_ro=reel_out_speeds, dt=dt)
+        KiteModels.next_step!(s, integrator; set_values=reel_out_speeds, torque_control=false, dt=dt)
     else
         redirect_stdout(devnull) do
-            KiteModels.next_step!(s, integrator, v_ro=reel_out_speeds, dt=dt)
+            KiteModels.next_step!(s, integrator; set_values=reel_out_speeds, torque_control=false, dt=dt)
         end
     end
     
     _calc_rotation(old_heading, calc_heading(s))
+    update_sys_state!(sys_state, s)
     i += 1
     return _calc_state(s)
 end
 
 function reset(name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, force=5000.0)
-    global kcu, s, integrator, integrator_history, i, sys_state, logger, integrator_history, wanted_elevation, wanted_azimuth, wanted_tether_length, rotation, max_force
+    global kcu, s, integrator, steady_state_history, i, sys_state, logger, steady_state_history, wanted_elevation, wanted_azimuth, wanted_tether_length, rotation, max_force
 
     wanted_elevation = Float32(elevation)
     wanted_azimuth = Float32(azimuth)
@@ -53,17 +54,17 @@ function reset(name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, f
 
     rotation = 0.0
 
-    if logger !== nothing
+    if logger !== nothing && length(logger) > 1
         name = String(name)
-        path = joinpath(get_data_path(), name) * ".bin"
-        serialize(path, logger)
+        save_log(logger, basename(name))
     end
     
     update_settings()
     kcu = KCU(se());
     s = Model(kcu);
-    logger = Vector{typeof(s.pos)}()
-    integrator = KiteModels.init_sim!(s, stiffness_factor=0.04, prn=false, integrator_history=integrator_history)
+    logger = Logger(s.num_A, max_render_length)
+    integrator = KiteModels.init_sim!(s, stiffness_factor=0.04, prn=false, steady_state_history=steady_state_history)
+    sys_state = SysState(s)
     i = 1
     return _calc_state(s)
 end
@@ -71,7 +72,7 @@ end
 function render()
     global sys_state, logger, i
     if(i <= max_render_length)
-        push!(logger, deepcopy(s.pos))
+        log!(logger, sys_state)
     end
 end
 
@@ -137,7 +138,7 @@ end
 
 
 function close()
-    save_history(integrator_history)
+    save_history(steady_state_history)
 end
 
 end

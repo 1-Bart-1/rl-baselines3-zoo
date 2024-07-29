@@ -1,5 +1,5 @@
 
-#   # python train.py --algo ars --env KiteEnv-v1 --eval-episodes 10 --eval-freq 100000 -n 20000000 -tb tb-log
+# works
 KiteEnv-v3:
   n_envs: 15
   policy: 'MlpPolicy'
