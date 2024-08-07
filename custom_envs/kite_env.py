@@ -11,7 +11,7 @@ from os.path import exists, expanduser
 
 curdir = path.dirname(__file__)
 # args = get_args()
-environ['JULIA_NUM_THREADS'] = '1'
+# environ['JULIA_NUM_THREADS'] = '1'
 environ['PYTHON_JULIACALL_SYSIMAGE'] = path.join(curdir, "Environment/.julia_sysimage.so")
 
 
@@ -33,8 +33,9 @@ class KiteEnv(gym.Env):
     jl.seval("using Pkg")
     jl.Pkg.activate(path.join(curdir, "Environment"))
     jl.seval("using Environment")
-    
+    jl.seval("e = Env()")
     self.Environment = jl.Environment
+    self.e = jl.e
     
     self.data_dir = path.join(main_data_dir, str(uuid4()))
     makedirs(self.data_dir)
@@ -44,6 +45,7 @@ class KiteEnv(gym.Env):
                 path.join(self.data_dir, "3l_settings.yaml"))
     self.Environment.set_data_path(self.data_dir)
     
+    self.max_episode_time = 60 # in seconds
     self.max_episode_length = 200
     self.rendered = False
     self.step_count = 0
@@ -55,8 +57,9 @@ class KiteEnv(gym.Env):
     self.crashed = False
     self.rewards = []
     
-    self.metadata = {"render_modes": ["bin"], "render_fps": 20}
+    self.metadata = {"render_modes": ["bin"], "render_fps": 3}
     self.render_mode = render_mode
+    self.sample_freq = 3
     
     
   def reset(self, seed=None, options={}):
@@ -73,9 +76,10 @@ class KiteEnv(gym.Env):
         
       # settings['initial']['elevation'] = float(random.choice(np.linspace(70, 80, 100, endpoint=False)))
       settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 60, 100, endpoint=False)))
-      settings['system']['sample_freq'] = 3
-
+      settings['system']['sample_freq'] = self.sample_freq
       initial_tether_length = settings['initial']['l_tether']
+
+      self.max_episode_length = int(self.max_episode_time*self.sample_freq)
 
       # wanted_azimuth = options.get('wanted_azimuth',random.uniform(-np.pi, np.pi))
       # min_elevation = options.get('min_elevation', random.uniform(0, np.pi/2))
@@ -88,7 +92,7 @@ class KiteEnv(gym.Env):
         yaml.safe_dump(settings, file)
         
       try:
-        observation = self.Environment.reset(self.render_name, float(min_elevation), float(wanted_azimuth), float(initial_tether_length), float(max_force))
+        observation = self.Environment.reset(self.e, self.render_name, float(min_elevation), float(wanted_azimuth), float(initial_tether_length), float(max_force))
 
         if self.render_mode == 'bin' and self.rendered:
           print("moving bin file")
@@ -114,16 +118,16 @@ class KiteEnv(gym.Env):
     observation = np.zeros(33)
     self.crashed = False
     try:
-      observation = self.Environment.step(action)
+      observation = self.Environment.step(self.e, action)
     except Exception as e:
       if(self.verbose >= 3) or self.steps <= 10:
         print(e)
       terminated = True
 
-    reward = observation[0]*10
+    reward = observation[0] * 200 / self.sample_freq # try observation squared: diminishing returns
     truncated = self.steps > self.max_episode_length
     if terminated:
-      reward = -100.0
+      reward = -100
 
       # REWARD MULTIPLIER
     
@@ -136,7 +140,7 @@ class KiteEnv(gym.Env):
       self.Environment.render()
   
   def close(self):
-    self.Environment.close()
+    # self.Environment.close()
     if path.exists(self.data_dir):
       try:
         rmtree(self.data_dir)

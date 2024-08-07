@@ -25,29 +25,29 @@ from time import time
 jl.seval('using Pkg')
 jl.Pkg.activate('.')
 jl.seval('using Environment')
-jl.seval('')
+jl.seval('e = Env()')
 
 start = time()
-jl.Environment.reset()
+jl.Environment.reset(jl.e)
 print('reset time', time() - start)
 
 start = time()
-jl.Environment.step([0, 0, 0])
+jl.Environment.step(jl.e, [0, 0, 0])
 print('step1 time', time() - start)
 
 start = time()
-jl.Environment.render()
+jl.Environment.render(jl.e)
 print('render1 time', time() - start)
 
 start = time()
-jl.Environment.step([0, 0, 0])
+jl.Environment.step(jl.e,[0, 0, 0])
 print('step2 time', time() - start)
 
 start = time()
-jl.Environment.render()
+jl.Environment.render(jl.e)
 print('render2 time', time() - start)
 
 start = time()
-jl.Environment.reset()
+jl.Environment.reset(jl.e)
 print('reset2 time', time() - start)
 "
