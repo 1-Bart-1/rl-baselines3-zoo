@@ -176,7 +176,7 @@ def train() -> None:
 
     # Unique id to ensure there is no race condition for the folder creation
     uuid_str = f"_{uuid.uuid4()}" if args.uuid else ""
-    if args.seed < 0 and args.algo != "ars":
+    if args.seed < 0:
         # Seed but with a random one
         args.seed = np.random.randint(2**32 - 1, dtype="int64").item()  # type: ignore[attr-defined]
 

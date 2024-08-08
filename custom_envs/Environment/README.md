@@ -30,5 +30,7 @@ logs/ars/KiteEnv-v3_66 && tb-log/KiteEnv-v3/ARS_31: probably was 20Hz...
 logs/ars/KiteEnv-v3_67 && tb-log/KiteEnv-v3/ARS_32: actually 3Hz. Should be almost twice as fast relatively.
 logs/ars/KiteEnv-v3_69 && tb-log/KiteEnv-v3/ARS_33: actually 3Hz. Same rewards as 20Hz.
 logs/ars/KiteEnv-v3_74 && tb-log/KiteEnv-v3/ARS_36: seed all envs the same for each episode. works really well
-
-reward for azimuth change
+tb-log/KiteEnv-v3/ARS_39 && logs/ars/KiteEnv-v3_77: new tether model. using torque * 100, 3hz, no reward
+tb-log/KiteEnv-v3/ARS_43 && logs/ars/KiteEnv-v3_82: using torque * 10, 20hz, 
+tb-log/KiteEnv-v3/ARS_44 && logs/ars/KiteEnv-v3_83: using torque * 10, 20hz, stable tether length, sample freq defined wrong in kite env (3hz). almost 1000fps. short episodes because of wrong sample freq.
+tb-log/KiteEnv-v3/ARS_45 && logs/ars/KiteEnv-v3_84: sample freq corrected, torque*10 and assert steering pos is correct.

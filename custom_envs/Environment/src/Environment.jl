@@ -28,20 +28,22 @@ const StateVec = MVector{11, Float32}
 end
 
 function step(e::Env, reel_out_torques; prn=false)
-    reel_out_torques = Vector{Float64}(reel_out_torques) .* 100
+    reel_out_torques = Vector{Float64}(reel_out_torques)
 
     old_heading = calc_heading(e.s)
     if prn
-        KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques, torque_control=false)
+        KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques, torque_control=true)
     else
-        redirect_stdout(devnull) do
-            KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques, torque_control=true)
+        redirect_stderr(devnull) do
+            redirect_stdout(devnull) do
+                KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques, torque_control=true)
+            end
         end
     end
     _calc_rotation(e, old_heading, calc_heading(e.s))
     update_sys_state!(e.sys_state, e.s)
     e.i += 1
-    return _calc_state(e, e.s)
+    return (e.integrator.last_stepfail, _calc_state(e, e.s))
 end
 
 function reset(e::Env, name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, force=5000.0, log=false)
@@ -55,8 +57,8 @@ function reset(e::Env, name="sim_log", elevation=0.0, azimuth=0.0, tether_length
         save_log(e.logger, basename(name))
     end
     update_settings()
-    @time e.logger = Logger(e.s.num_A, e.max_render_length)
-    @time e.integrator = KiteModels.reset_sim!(e.s; stiffness_factor=0.04)
+    e.logger = Logger(e.s.num_A, e.max_render_length)
+    e.integrator = KiteModels.reset_sim!(e.s; stiffness_factor=0.04)
     e.sys_state = SysState(e.s)
     e.i = 1
     return _calc_state(e, e.s)
@@ -97,8 +99,8 @@ end
 function _calc_reward(e::Env, s::KPS4_3L)
     if (KiteModels.calc_tether_elevation(s) < e.wanted_elevation ||
         !(-2*π < e.rotation < 2*π) ||
-        s.tether_lengths[1] > e.wanted_tether_length*1.5 ||
-        s.tether_lengths[1] < e.wanted_tether_length*0.95 ||
+        s.tether_lengths[3] > e.wanted_tether_length*1.5 ||
+        s.tether_lengths[3] < e.wanted_tether_length*0.95 ||
         sum(winch_force(s)) > e.max_force)
         return 0.0
     end
@@ -109,7 +111,7 @@ end
 
 function _calc_force_component(e::Env, s::KPS4_3L)
     wanted_force_vector = [cos(e.wanted_elevation)*cos(e.wanted_azimuth), cos(e.wanted_elevation)*-sin(e.wanted_azimuth), sin(e.wanted_elevation)]
-    tether_force = sum(s.forces[1:3])
+    tether_force = sum(s.winch_forces)
     force_component = tether_force ⋅ wanted_force_vector
     return force_component
 end

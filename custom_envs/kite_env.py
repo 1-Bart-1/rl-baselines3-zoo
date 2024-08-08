@@ -11,7 +11,7 @@ from os.path import exists, expanduser
 
 curdir = path.dirname(__file__)
 # args = get_args()
-# environ['JULIA_NUM_THREADS'] = '1'
+environ['JULIA_NUM_THREADS'] = '1'
 environ['PYTHON_JULIACALL_SYSIMAGE'] = path.join(curdir, "Environment/.julia_sysimage.so")
 
 
@@ -46,7 +46,8 @@ class KiteEnv(gym.Env):
     self.Environment.set_data_path(self.data_dir)
     
     self.max_episode_time = 60 # in seconds
-    self.max_episode_length = 200
+    self.sample_freq = 20
+    self.max_episode_length = int(self.max_episode_time*self.sample_freq)
     self.rendered = False
     self.step_count = 0
     self.verbose = 2
@@ -54,12 +55,10 @@ class KiteEnv(gym.Env):
     self.render_name = render_name
     self.model_path = ""
     self.steps = 0
-    self.crashed = False
     self.rewards = []
     
     self.metadata = {"render_modes": ["bin"], "render_fps": 3}
     self.render_mode = render_mode
-    self.sample_freq = 3
     
     
   def reset(self, seed=None, options={}):
@@ -75,8 +74,8 @@ class KiteEnv(gym.Env):
         settings = yaml.safe_load(file)
         
       # settings['initial']['elevation'] = float(random.choice(np.linspace(70, 80, 100, endpoint=False)))
-      settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 60, 100, endpoint=False)))
-      settings['system']['sample_freq'] = self.sample_freq
+      # settings['initial']['l_tether'] = float(random.choice(np.linspace(50, 60, 100, endpoint=False)))
+      # settings['system']['sample_freq'] = self.sample_freq
       initial_tether_length = settings['initial']['l_tether']
 
       self.max_episode_length = int(self.max_episode_time*self.sample_freq)
@@ -116,9 +115,9 @@ class KiteEnv(gym.Env):
     terminated = False
     
     observation = np.zeros(33)
-    self.crashed = False
     try:
-      observation = self.Environment.step(self.e, action)
+      action = np.array(action)*10
+      (terminated, observation) = self.Environment.step(self.e, action)
     except Exception as e:
       if(self.verbose >= 3) or self.steps <= 10:
         print(e)
@@ -129,8 +128,6 @@ class KiteEnv(gym.Env):
     if terminated:
       reward = -100
 
-      # REWARD MULTIPLIER
-    
     return np.array(observation, dtype=np.float32), reward, terminated, truncated, {}
   
   def render(self):
