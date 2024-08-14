@@ -5,6 +5,7 @@ import Pkg;
 Pkg.add("PythonCall");
 Pkg.add("PackageCompiler");
 Pkg.activate(".");
+Pkg.update();
 using Environment;
 using PackageCompiler;
 create_sysimage(["Environment"], sysimage_path=".julia_sysimage.so");

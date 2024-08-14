@@ -9,7 +9,7 @@ import custom_envs
 import numpy as np
 import os
 
-model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_74")
+model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_108")
 model = ARS.load(os.path.join(model_path, "best_model.zip"))
 
 env = make_vec_env("KiteEnv-v3", env_kwargs={"render_mode": "bin"})
@@ -32,7 +32,7 @@ def render(options={}, close=False):
             term = term[0]
             trunc = trunc[0]['TimeLimit.truncated']
             done = term
-            print(f"Step: {step}, Reward: {reward}, Term: {term}, Trunc: {trunc}")
+            print(f"Step: {step}, Reward: {reward}, Term: {term}, Trunc: {trunc}, Action: {action}")
             env.render()
             # print(obs)
             step += 1
@@ -46,10 +46,3 @@ def render(options={}, close=False):
             env.close()
 
 render(close=True)
-
-# render({
-#     'wanted_azimuth': 0,
-#     'min_elevation': np.pi/4,
-#     'max_force': 100,
-#     'render_name': '0_45_100',
-# }, close=True)

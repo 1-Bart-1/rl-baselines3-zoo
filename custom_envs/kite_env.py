@@ -41,21 +41,22 @@ class KiteEnv(gym.Env):
     makedirs(self.data_dir)
     copy(path.join(main_data_dir, "system.yaml"), 
                 path.join(self.data_dir, "system.yaml"))
-    copy(path.join(main_data_dir, "3l_settings.yaml"), 
-                path.join(self.data_dir, "3l_settings.yaml"))
+    copy(path.join(main_data_dir, "settings.yaml"), 
+                path.join(self.data_dir, "settings.yaml"))
     self.Environment.set_data_path(self.data_dir)
     
-    self.max_episode_time = 60 # in seconds
+    self.max_episode_time = 10 # in seconds
     self.sample_freq = 20
     self.max_episode_length = int(self.max_episode_time*self.sample_freq)
     self.rendered = False
     self.step_count = 0
     self.verbose = 2
-    self.max_sim_force = 10000
+    self.max_sim_force = 1000
     self.render_name = render_name
     self.model_path = ""
     self.steps = 0
-    self.rewards = []
+    self.times_truncated = 0
+    self.max_reward = 1.0
     
     self.metadata = {"render_modes": ["bin"], "render_fps": 3}
     self.render_mode = render_mode
@@ -70,7 +71,7 @@ class KiteEnv(gym.Env):
     for try_count in range(0, 100):
       if seed is not None:
         random.seed(seed + try_count)
-      with open(path.join(main_data_dir, "3l_settings.yaml"), 'r') as file:
+      with open(path.join(main_data_dir, "settings.yaml"), 'r') as file:
         settings = yaml.safe_load(file)
         
       # settings['initial']['elevation'] = float(random.choice(np.linspace(70, 80, 100, endpoint=False)))
@@ -87,7 +88,7 @@ class KiteEnv(gym.Env):
       min_elevation = np.pi / 8
       max_force = 5000.0
       
-      with open(path.join(self.data_dir, "3l_settings.yaml"), 'w') as file:
+      with open(path.join(self.data_dir, "settings.yaml"), 'w') as file:
         yaml.safe_dump(settings, file)
         
       try:
@@ -116,15 +117,18 @@ class KiteEnv(gym.Env):
     
     observation = np.zeros(33)
     try:
-      action = np.array(action)*10
+      action = np.array(action)*1000
       (terminated, observation) = self.Environment.step(self.e, action)
     except Exception as e:
-      if(self.verbose >= 3) or self.steps <= 10:
+      if(self.verbose >= 3):
         print(e)
       terminated = True
 
-    reward = observation[0] * 200 / self.sample_freq # try observation squared: diminishing returns
+    reward = observation[0] * 200 / self.sample_freq
+    reward = min(reward, self.max_reward + self.times_truncated*0.01)
     truncated = self.steps > self.max_episode_length
+    if truncated:
+      self.times_truncated += 1
     if terminated:
       reward = -100
 
@@ -134,7 +138,7 @@ class KiteEnv(gym.Env):
     if self.render_mode == 'bin':
       self.rendered = True
       # print("rendering...")
-      self.Environment.render()
+      self.Environment.render(self.e)
   
   def close(self):
     # self.Environment.close()

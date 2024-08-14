@@ -71,9 +71,9 @@ function render(e::Env)
 end
 
 function _calc_state(e::Env, s::KPS4_3L)
-    _calc_reward(e,s)
+    _calc_speed_reward(e,s)
     e.state .= vcat(
-        _calc_reward(e,s),                # length 1
+        _calc_speed_reward(e,s),                # length 1
         calc_orient_quat(s),            # length 4
         s.tether_lengths,                    # length 3 # normalize to min and max 
         
@@ -97,7 +97,8 @@ function _calc_state(e::Env, s::KPS4_3L)
 end
 
 function _calc_reward(e::Env, s::KPS4_3L)
-    if (KiteModels.calc_tether_elevation(s) < e.wanted_elevation ||
+    if  s.vel_kite ⋅ s.e_x < 0 ||
+        (KiteModels.calc_tether_elevation(s) < e.wanted_elevation ||
         !(-2*π < e.rotation < 2*π) ||
         s.tether_lengths[3] > e.wanted_tether_length*1.5 ||
         s.tether_lengths[3] < e.wanted_tether_length*0.95 ||
@@ -106,6 +107,21 @@ function _calc_reward(e::Env, s::KPS4_3L)
     end
     force_component = _calc_force_component(e,s)
     reward = clamp(force_component / e.max_force, 0.0, 1.0) # range [-1, 1] clamped to [0, 1] because 0 is physical minimum
+    return reward
+end
+
+function _calc_speed_reward(e::Env, s::KPS4_3L)
+    speed = s.vel_kite ⋅ s.e_x
+    if  speed < 0 ||
+        (KiteModels.calc_tether_elevation(s) < e.wanted_elevation ||
+        !(-2*π < e.rotation < 2*π) ||
+        s.tether_lengths[3] > e.wanted_tether_length*1.5 ||
+        s.tether_lengths[3] < e.wanted_tether_length*0.95 ||
+        sum(winch_force(s)) > e.max_force)
+        return 0.0
+    end
+    wanted_minus_z = [cos(e.wanted_elevation)*cos(e.wanted_azimuth), cos(e.wanted_elevation)*-sin(e.wanted_azimuth), sin(e.wanted_elevation)]
+    reward = speed * (-s.e_z ⋅ wanted_minus_z)
     return reward
 end
 
@@ -126,7 +142,5 @@ function _calc_rotation(e::Env, old_heading, new_heading)
     e.rotation += d_rotation
     return nothing
 end
-
-# @setup_workload e_::Env = Env()
 
 end
