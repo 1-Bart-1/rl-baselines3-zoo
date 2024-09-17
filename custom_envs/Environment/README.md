@@ -10,14 +10,14 @@ Pkg.update("KiteModels") to update commits done to KiteModels
 
 
 command to run training:
-python train.py --algo ars --env KiteEnv-v3 --eval-episodes 20 --eval-freq 500000 -n 200000000 -tb tb-log
+python train.py --algo ars --env KiteEnv-v3 --eval-episodes 20 --eval-freq 100000 -n 200000000 -tb tb-log
 
 
 hyperparam tuning:
-python train.py --algo ars --env KiteEnv-v3 -optimize --study-name kite_env-v3-3 --storage sqlite:///kite_env-v3.db --n-trials 1000 --n-jobs 1 -n 500000 --eval-episodes 1 --n-evaluations 20 --verbose 2
+python train.py --algo ars --env KiteEnv-v3 -optimize --study-name kite_env-v3-4 --storage sqlite:///kite_env-v3.db --n-trials 1000 --n-jobs 1 -n 500000 --eval-episodes 1 --n-evaluations 20 --verbose 2
 
 hyperparam viewing:
-python scripts/parse_study.py --study-name kite_env-v3-3 --print-n-best-trials 10 --storage sqlite:///kite_env-v3.db
+python scripts/parse_study.py --study-name kite_env-v3-4 --print-n-best-trials 10 --storage sqlite:///kite_env-v3.db
 
 
 ConnectionResetError
@@ -46,6 +46,16 @@ tb-log/KiteEnv-v3/ARS_59 && logs/ars/KiteEnv-v3_99: Reward with speed. No prints
 30 seconds and 10000 multiplier.
 tb-log/KiteEnv-v3/ARS_64 && logs/ars/KiteEnv-v3_105: 10 seconds and 1000 multiplier.
 108: it works! use speed for reward and use reward = min(reward, 1.0)
-109: 
+109: increase max reward slightly when truncated. still using speed for reward. works at 4.5 million steps. should reduce the reward increase a bit.
+110: negative reward for flying backwards. bit chaotic flying, not finishing episode.
+111: reduce reward increase a bit, increase negative crash reward
+112: decrease multiplier to 300. decrease damping for steering lines. remove reward multiplier which makes crashing more expensive
+113: lower start reward.
+115: reward direction. doesnt work: shorter episode is bigger reward. cannot give negative rewards before end of episode. could use:     
+    reward = normalize(s.pos[s.num_A]) ⋅ wanted_direction + 1.0
+116: faster solver, little reward for doing wrong things as well, using formula above, checked and speed can be positive from the start, stiffness=1 from start.
+117: move wanted azimuth a bit
+120: lot more std dev, 60 delta
 
-Ideas: shorter episode, 
+tb-log/KiteEnv-v3/ARS_80, logs/ars/KiteEnv-v3_129: new model
+logs/ars/KiteEnv-v3_131, tb-log/KiteEnv-v3/ARS_82: fixed ram pressure

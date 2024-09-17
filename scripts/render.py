@@ -1,7 +1,6 @@
 import sys
 sys.path.append('.')
 
-import gymnasium as gym
 from sb3_contrib import ARS
 from stable_baselines3.common.vec_env import VecNormalize
 from stable_baselines3.common.env_util import make_vec_env
@@ -9,8 +8,8 @@ import custom_envs
 import numpy as np
 import os
 
-model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_108")
-model = ARS.load(os.path.join(model_path, "best_model.zip"))
+model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_132")
+model = ARS.load(os.path.join(model_path, "KiteEnv-v3.zip"))
 
 env = make_vec_env("KiteEnv-v3", env_kwargs={"render_mode": "bin"})
 env = VecNormalize.load(os.path.join(model_path, "KiteEnv-v3/vecnormalize.pkl"), env)

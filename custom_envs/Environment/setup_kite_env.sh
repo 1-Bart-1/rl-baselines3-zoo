@@ -11,10 +11,11 @@ using PackageCompiler;
 create_sysimage(["Environment"], sysimage_path=".julia_sysimage.so");
 '
 
-# Check if .julia_sysimage.so was created successfully
 if [ ! -f .julia_sysimage.so ]; then
     echo ".julia_sysimage.so was not created. Exiting..."
     exit 1
+else
+    echo "sysimage created"
 fi
 
 python -c "

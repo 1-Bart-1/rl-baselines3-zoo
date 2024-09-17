@@ -7,7 +7,6 @@ import random
 import yaml
 from uuid import uuid4
 from os import path, makedirs, environ
-from os.path import exists, expanduser
 
 curdir = path.dirname(__file__)
 # args = get_args()
@@ -15,8 +14,8 @@ environ['JULIA_NUM_THREADS'] = '1'
 environ['PYTHON_JULIACALL_SYSIMAGE'] = path.join(curdir, "Environment/.julia_sysimage.so")
 
 
-main_data_dir = expanduser("~/Code/work/data")
-sim_data_dir = expanduser("~/Code/work/sim")
+main_data_dir = path.expanduser("~/Code/work/data")
+sim_data_dir = path.expanduser("~/Code/work/sim")
 
 
 class KiteEnv(gym.Env):
@@ -29,6 +28,11 @@ class KiteEnv(gym.Env):
     self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(33,)) # policies scaling from -1 to 1
             # [w_old, x_old, y_old, z_old, w, x, y, z, force, elevation, azimuth, tether_length, max_force, min_elevation, wanted_azimuth]
     
+    self.data_dir = path.join(main_data_dir, str(uuid4()))
+    makedirs(self.data_dir)
+    copy(path.join(main_data_dir, "polars.csv"), path.join(self.data_dir, "polars.csv"))
+    copy(path.join(main_data_dir, "naca2412.dat"), path.join(self.data_dir, "naca2412.dat"))
+
     from juliacall import Main as jl
     jl.seval("using Pkg")
     jl.Pkg.activate(path.join(curdir, "Environment"))
@@ -36,9 +40,7 @@ class KiteEnv(gym.Env):
     jl.seval("e = Env()")
     self.Environment = jl.Environment
     self.e = jl.e
-    
-    self.data_dir = path.join(main_data_dir, str(uuid4()))
-    makedirs(self.data_dir)
+
     copy(path.join(main_data_dir, "system.yaml"), 
                 path.join(self.data_dir, "system.yaml"))
     copy(path.join(main_data_dir, "settings.yaml"), 
@@ -56,7 +58,7 @@ class KiteEnv(gym.Env):
     self.model_path = ""
     self.steps = 0
     self.times_truncated = 0
-    self.max_reward = 1.0
+    self.max_reward = 0.01
     
     self.metadata = {"render_modes": ["bin"], "render_fps": 3}
     self.render_mode = render_mode
@@ -84,7 +86,7 @@ class KiteEnv(gym.Env):
       # wanted_azimuth = options.get('wanted_azimuth',random.uniform(-np.pi, np.pi))
       # min_elevation = options.get('min_elevation', random.uniform(0, np.pi/2))
       # max_force = options.get('max_force', random.uniform(0, self.max_sim_force))
-      wanted_azimuth = 0.0
+      wanted_azimuth = 0.1
       min_elevation = np.pi / 8
       max_force = 5000.0
       
@@ -100,6 +102,8 @@ class KiteEnv(gym.Env):
 
         if 'render_name' in options:
           self.render_name = options['render_name']
+          print("received render name")
+          self.max_reward = np.inf
         if 'model_path' in options:
           self.model_path = options['model_path']
           print(self.model_path)
@@ -117,18 +121,18 @@ class KiteEnv(gym.Env):
     
     observation = np.zeros(33)
     try:
-      action = np.array(action)*1000
+      action = np.array(action)*300
       (terminated, observation) = self.Environment.step(self.e, action)
     except Exception as e:
       if(self.verbose >= 3):
         print(e)
       terminated = True
 
-    reward = observation[0] * 200 / self.sample_freq
-    reward = min(reward, self.max_reward + self.times_truncated*0.01)
+    reward = observation[0]
+    # reward = min(reward, self.max_reward + self.times_truncated*0.005)
     truncated = self.steps > self.max_episode_length
-    if truncated:
-      self.times_truncated += 1
+    # if truncated:
+    #   self.times_truncated += 1
     if terminated:
       reward = -100
 

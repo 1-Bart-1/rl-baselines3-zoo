@@ -503,10 +503,10 @@ def sample_ars_params(trial: optuna.Trial, n_actions: int, n_envs: int, addition
     :return:
     """
     # n_eval_episodes = trial.suggest_categorical("n_eval_episodes", [1, 2])
-    n_delta = trial.suggest_categorical("n_delta", [32, 64, 128])
+    n_delta = trial.suggest_categorical("n_delta", [30, 60, 120])
     # learning_rate = trial.suggest_categorical("learning_rate", [0.01, 0.02, 0.025, 0.03])
-    learning_rate = trial.suggest_categorical("learning_rate", [0.01, 0.02, 0.03])
-    delta_std = trial.suggest_categorical("delta_std", [0.02, 0.025, 0.03])
+    learning_rate = trial.suggest_float("learning_rate", 1e-3, 1e-1)
+    delta_std = trial.suggest_float("delta_std", 1e-3, 1)
     top_frac_size = trial.suggest_categorical("top_frac_size", [0.5, 0.8, 1.0])
     n_top = max(int(top_frac_size * n_delta), 1)
     # alive_bonus_offset = trial.suggest_categorical("alive_bonus_offset", [-1, -0.1, 0])
