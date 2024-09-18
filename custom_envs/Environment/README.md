@@ -20,7 +20,7 @@ hyperparam viewing:
 python scripts/parse_study.py --study-name kite_env-v3-4 --print-n-best-trials 10 --storage sqlite:///kite_env-v3.db
 
 
-ConnectionResetError
+optimize path and optimize heading following seperately
 
 
 ars_23 / v3_55 WORKS with 3Hz sampling
@@ -59,3 +59,4 @@ tb-log/KiteEnv-v3/ARS_64 && logs/ars/KiteEnv-v3_105: 10 seconds and 1000 multipl
 
 tb-log/KiteEnv-v3/ARS_80, logs/ars/KiteEnv-v3_129: new model
 logs/ars/KiteEnv-v3_131, tb-log/KiteEnv-v3/ARS_82: fixed ram pressure
+136: works really well, but spinning like crazy

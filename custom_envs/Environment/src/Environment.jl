@@ -12,8 +12,7 @@ const StateVec = MVector{11, Float32}
     max_render_length::Int = 10000
     i::Int = 1
     logger::Logger = Logger(s.num_A, max_render_length)
-    integrator::ODEIntegrator = KiteModels.init_sim!(s; prn=false, torque_control=true)
-    sys_state::SysState = SysState(s)
+    sys_state::Union{Nothing, SysState} = nothing
     state::StateVec = zeros(StateVec)
     state_d::StateVec = zeros(StateVec)
     state_dd::StateVec = zeros(StateVec)
@@ -27,22 +26,21 @@ const StateVec = MVector{11, Float32}
 end
 
 function step(e::Env, reel_out_torques; prn=false)
+    e.i += 1
     reel_out_torques = Vector{Float64}(reel_out_torques)
     old_heading = calc_heading(e.s)
     if prn
-        KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques)
+        KiteModels.next_step!(e.s; set_values=reel_out_torques)
     else
         redirect_stderr(devnull) do
             redirect_stdout(devnull) do
-                KiteModels.next_step!(e.s, e.integrator; set_values=reel_out_torques)
+                KiteModels.next_step!(e.s; set_values=reel_out_torques)
             end
         end
     end
     _calc_rotation(e, old_heading, calc_heading(e.s))
     update_sys_state!(e.sys_state, e.s)
-    e.i += 1
-    # @assert abs(s.tether_lengths[3] - s.tether_lengths[2]) < 1.0
-    return (e.integrator.last_stepfail, _calc_state(e, e.s))
+    return (false, _calc_state(e, e.s))
 end
 
 function reset(e::Env, name="sim_log", elevation=0.0, azimuth=0.0, tether_length=50.0, force=5000.0, log=false)
@@ -56,15 +54,18 @@ function reset(e::Env, name="sim_log", elevation=0.0, azimuth=0.0, tether_length
         save_log(e.logger, basename(name))
     end
     update_settings()
-    e.logger = Logger(e.s.num_A, e.max_render_length)
-    e.integrator = KiteModels.init_sim!(e.s; prn=false, torque_control=true)
+    KiteModels.init_sim!(e.s; prn=false, torque_control=true)
+    KiteModels.next_step!(e.s; set_values=[-10.0, 0.0, -60.0], dt=1.0)
     e.sys_state = SysState(e.s)
-    e.i = 1
+    e.i = 0
     return _calc_state(e, e.s)
 end
 
 function render(e::Env)
-    if(e.i <= e.max_render_length)
+    if (e.i == 1)
+        e.logger = Logger(e.s.num_A, e.max_render_length)
+    end
+    if (e.i <= e.max_render_length)
         log!(e.logger, e.sys_state)
     end
 end
@@ -99,7 +100,7 @@ function _calc_reward(e::Env, s::KPS4_3L)
         (KiteModels.calc_tether_elevation(s) < e.wanted_elevation ||
         !(-2*π < e.rotation < 2*π) ||
         s.tether_lengths[3] > e.wanted_tether_length*1.5 ||
-        s.tether_lengths[3] < e.wanted_tether_length*0.95 ||
+        s.tether_lengths[3] < e.wanted_tether_length ||
         sum(winch_force(s)) > e.max_force)
         return 0.0
     end
