@@ -8,16 +8,19 @@ import custom_envs
 import numpy as np
 import os
 
-model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_136")
+model_path = os.path.join(os.path.dirname(__file__), "../logs/ars/KiteEnv-v3_178")
 model = ARS.load(os.path.join(model_path, "best_model.zip"))
 
 env = make_vec_env("KiteEnv-v3", env_kwargs={"render_mode": "bin"})
-env = VecNormalize.load(os.path.join(model_path, "KiteEnv-v3/vecnormalize.pkl"), env)
+# env = VecNormalize.load(os.path.join(model_path, "KiteEnv-v3/vecnormalize.pkl"), env)
 
 def render(options={}, close=False):
     options['render_name'] = "render"
     options['model_path'] = model_path
+    options['verbose'] = 3
     env.set_options(options)
+    obs = env.reset()
+    obs = env.reset()
     obs = env.reset()
     
     done = False

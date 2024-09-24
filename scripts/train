@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd custom_envs/Environment
+./bin/create_sys_image
+cd ../..
+python train.py --algo ars --env KiteEnv-v3 --eval-episodes 20 --eval-freq 500000 -n 200000000 -tb tb-log

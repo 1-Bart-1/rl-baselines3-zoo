@@ -1,5 +1,11 @@
-echo "Creating .julia_sysimage.so..."
-rm -f .julia_sysimage.so
+#!/bin/bash
+
+if [[ $(basename $(pwd)) == "bin" ]]; then
+    cd ..
+fi
+
+echo "Creating sysimage.so..."
+rm -f bin/sysimage.so
 julia -t 1 -e '
 import Pkg;
 Pkg.add("PythonCall");
@@ -8,11 +14,11 @@ Pkg.activate(".");
 Pkg.update();
 using Environment;
 using PackageCompiler;
-create_sysimage(["Environment"], sysimage_path=".julia_sysimage.so");
+create_sysimage(["Environment"], sysimage_path="bin/sysimage.so");
 '
 
-if [ ! -f .julia_sysimage.so ]; then
-    echo ".julia_sysimage.so was not created. Exiting..."
+if [ ! -f bin/sysimage.so ]; then
+    echo "bin/sysimage.so was not created. Exiting..."
     exit 1
 else
     echo "sysimage created"
@@ -21,7 +27,7 @@ fi
 python -c "
 import os
 os.environ['JULIA_NUM_THREADS'] = '1'
-os.environ['PYTHON_JULIACALL_SYSIMAGE'] = os.path.join(os.getcwd(), '.julia_sysimage.so')
+os.environ['PYTHON_JULIACALL_SYSIMAGE'] = os.path.join(os.getcwd(), 'bin/sysimage.so')
 from juliacall import Main as jl
 from time import time
 jl.seval('using Pkg')
@@ -49,6 +55,7 @@ start = time()
 jl.Environment.render(jl.e)
 print('render2 time', time() - start)
 
+jl.Environment.reset(jl.e)
 start = time()
 jl.Environment.reset(jl.e)
 print('reset2 time', time() - start)

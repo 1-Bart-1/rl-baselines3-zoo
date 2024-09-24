@@ -9,7 +9,7 @@ KiteEnv-v3:
   n_delta: 40
   n_top: 30
   alive_bonus_offset: 0
-  normalize: "dict(norm_obs=True, norm_reward=False)"
+  # normalize: "dict(norm_obs=False, norm_reward=False)"
   policy_kwargs: "dict(net_arch=[64, 64])"
   zero_policy: False
 

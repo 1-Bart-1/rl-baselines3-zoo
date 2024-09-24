@@ -60,3 +60,9 @@ tb-log/KiteEnv-v3/ARS_64 && logs/ars/KiteEnv-v3_105: 10 seconds and 1000 multipl
 tb-log/KiteEnv-v3/ARS_80, logs/ars/KiteEnv-v3_129: new model
 logs/ars/KiteEnv-v3_131, tb-log/KiteEnv-v3/ARS_82: fixed ram pressure
 136: works really well, but spinning like crazy
+140: works
+147: not so good
+148: 
+150: works, slower than with normalized
+155: local maximum
+156: bigger reward range
